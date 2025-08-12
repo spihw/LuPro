@@ -432,34 +432,77 @@ Rayfield:LoadConfiguration()
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local FriendsWithPower = {
-    ["L71v2_b0t"] = true,
-    ["L71V2"] = true,
-    -- أضف أسماء أكثر
-}
-
-local function MakePlayerSink(player)
-    local character = player.Character
-    if character then
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.CFrame = hrp.CFrame - Vector3.new(0, 50, 0)
+local function FindPlayerByPartialName(name)
+    name = name:lower()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #name) == name then
+            return player
         end
     end
+    return nil
 end
 
-game:GetService("Players").PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(msg)
-        if FriendsWithPower[player.Name] then
-            local args = msg:split(" ")
-            if args[1]:lower() == "killi" and args[2] then
-                local targetName = args[2]
-                local targetPlayer = Players:FindFirstChild(targetName)
-                if targetPlayer and targetPlayer == LocalPlayer then
-                    MakePlayerSink(targetPlayer)
-                end
+local AllowedUsers = {
+    ["gsksjsj_83773"] = true,
+    ["L71V2"] = true,
+}
+
+local ControlTab = nil
+if AllowedUsers[LocalPlayer.Name] then
+    ControlTab = Window:CreateTab("تحكم باللاعبين", 44833624758)
+    
+    local targetName = ""
+    
+    local InputBox = ControlTab:CreateInput({
+        Name = "اكتب اسم اللاعب",
+        PlaceholderText = "اكتب اسم اللاعب هنا",
+        RemoveTextAfterFocusLost = false,
+        Callback = function(value)
+            targetName = value
+        end,
+    })
+    
+    ControlTab:CreateButton({
+        Name = "sit ",
+        Callback = function()
+            local targetPlayer = FindPlayerByPartialName(targetName)
+            if not targetPlayer then
+                Rayfield:Notify({
+                    Title = "خطأ",
+                    Content = "اللاعب غير موجود!",
+                    Duration = 5,
+                    Image = 4483362458,
+                    Actions = {}
+                })
+                return
             end
-        end
-    end)
-end)
+            
+            local isActive = getgenv().ActiveScripts[targetPlayer.Name]
+            if isActive then
+                Rayfield:Notify({
+                    Title = "تم ",
+                    Content = "اللاعب "..targetPlayer.Name.." مفعل السكربت",
+                    Duration = 5,
+                    Image = 4483362458,
+                    Actions = {}
+                })
+                
+                local char = targetPlayer.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    char.Humanoid.Sit = true
+                end
+            else
+                Rayfield:Notify({
+                    Title = "تنبيه",
+                    Content = "ياحبيبي اللاعب "..targetPlayer.Name.." ما مفعل السكربت",
+                    Duration = 5,
+                    Image = 4483362458,
+                    Actions = {}
+                })
+            end
+        end,
+    })
+else
+    print("أنت ما عندك صلاحية الدخول لتبويب التحكم.")
+end
 
