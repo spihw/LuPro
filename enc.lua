@@ -433,7 +433,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local FriendsWithPower = {
-    ["L71V2"] = true,
+    ["L71v2_b0t"] = true,
     ["L71V2"] = true,
     -- أضف أسماء أكثر
 }
